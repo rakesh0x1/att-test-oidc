@@ -14,7 +14,7 @@ jobs:
       - name: Get GitHub OIDC Token
         id: oidc
         run: |
-          OIDC_TOKEN=$(curl -sS "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://github.com/rakesh0x1/att-test-oidc/" \
+          OIDC_TOKEN=$(curl -sS "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://github.com/rakesh0x1/att-test-oidc" \
             -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             -H "Accept: application/json" | jq -r '.value')
           if [ -z "$OIDC_TOKEN" ] || [ "$OIDC_TOKEN" == "null" ]; then
@@ -37,4 +37,3 @@ jobs:
           fi
           echo "DOPPLER_TOKEN=$DOPPLER_TOKEN" >> $GITHUB_ENV
           echo "Doppler API Token: $DOPPLER_TOKEN"
-    
