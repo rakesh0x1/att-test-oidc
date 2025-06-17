@@ -28,7 +28,7 @@ jobs:
           RESPONSE=$(curl -sS --request POST \
             --url https://api.doppler.com/v3/auth/oidc \
             --header 'Content-Type: application/json' \
-            --data "{\"identity\": \"10d091e1-902d-4dc7-b436-22d1a7d14eaf\", \"token\": \"$OIDC_TOKEN\"}")
+            --data "{\"identity\": \"9ae845fd-26e1-4801-9438-9ef11c8a4c48\", \"token\": \"$OIDC_TOKEN\"}")
           echo "Doppler Response: $RESPONSE"
           DOPPLER_TOKEN=$(echo $RESPONSE | jq -r '.token')
           if [ -z "$DOPPLER_TOKEN" ] || [ "$DOPPLER_TOKEN" == "null" ]; then
